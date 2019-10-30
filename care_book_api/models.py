@@ -33,7 +33,7 @@ class Child(models.Model):
 
     def __str__(self):
         return self.name
-        
+
 
 class Post(models.Model):
     image = models.ImageField(null=True, blank=True)
