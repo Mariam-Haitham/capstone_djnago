@@ -25,7 +25,7 @@ class Child(models.Model):
     image = models.ImageField(null=True, blank=True)
     dob = models.DateField()
     medical_history = models.TextField()
-    home = models.ForeignKey(Home, on_delete=models.CASCADE)
+    home = models.ForeignKey(Home, on_delete=models.CASCADE, related_name='children')
     allergies = models.ManyToManyField(Allergy, related_name='children')
 
     class Meta:

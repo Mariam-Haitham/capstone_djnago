@@ -3,6 +3,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from django.contrib.auth.models import User
 
+from .models import Child, Allergy
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -12,11 +14,10 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 
 class SignupSerializer(serializers.Serializer):
-    username = serializers.CharField()
     password = serializers.CharField(write_only=True)
     first_name = serializers.CharField()
     last_name = serializers.CharField()
-    email = serializers.CharField()
+    email = serializers.EmailField(required=True)
 
 
 class UserInviteSerializer(serializers.ModelSerializer):
@@ -33,8 +34,15 @@ class UserInviteSerializer(serializers.ModelSerializer):
         )
         return validated_data
 
-        
-class UserSerializer(serializers.ModelSerializer):
+
+class AddChildSerializer(serializers.ModelSerializer):
+    print("I AM ALLERGY")
+    print(Allergy.objects.all())
+    allergies = serializers.SlugRelatedField(
+        many=True, 
+        queryset=Allergy.objects.all(),
+        slug_field='name',
+    )
     class Meta:
-        model = User
-        fields = ["first_name", "last_name", "username", "password"]
+        model = Child
+        fields = ["name", "image", "dob", "medical_history","allergies"]
