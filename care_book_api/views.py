@@ -7,24 +7,25 @@ from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import Home
+from .models import Home, Child
 from .serializers import (MyTokenObtainPairSerializer, SignupSerializer, 
-UserInviteSerializer)
+UserInviteSerializer, AddChildSerializer)
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
 
 class Signup(APIView):
     serializer_class = SignupSerializer
 
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
-        if serializer.is_valid(): 
-            user, created = User.objects.get_or_create(username=request.data["username"])
-            user.first_name = request.data["first_name"]
-            user.last_name = request.data["last_name"]
-            user.email = request.data["email"]
+        if serializer.is_valid():
+            user, created = User.objects.get_or_create(username=serializer.data["email"])
+            user.first_name = serializer.data["first_name"]
+            user.last_name = serializer.data["last_name"]
+            user.email = serializer.data["email"]
             user.set_password(request.data['password'])
             user.save()
             if created:
@@ -36,4 +37,24 @@ class Signup(APIView):
 
 class UserInvite(CreateAPIView):
     serializer_class = UserInviteSerializer
-    
+ 
+
+class AddChild(CreateAPIView):
+    serializer_class = AddChildSerializer
+
+    def post(self, request, home_id):
+        serializer = AddChildSerializer(data=request.data)
+
+        if serializer.is_valid():
+            home = Home.objects.get(id=home_id)
+            child = Child.objects.create(home = home, 
+                name = serializer.data['name'], 
+                image = serializer.data['image'], 
+                dob = serializer.data['dob'],
+                medical_history = serializer.data['medical_history'], 
+            )
+            child.allergies.set(serializer.data['allergies'])
+            child.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+       
