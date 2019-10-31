@@ -10,9 +10,9 @@ from care_book_api import views
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('home/<int:home_id>/add/', views.AddChild.as_view(), name='add_child'),
+    path('add/child/<int:home_id>/', views.AddChild.as_view(), name='add_child'),
 
-    path("invite/", views.UserInvite.as_view(), name="invite"),
+    path("invite/<int:home_id>/", views.UserInvite.as_view(), name="invite"),
 
     path("signup/", views.Signup.as_view(), name="signup"),
     path('login/', views.MyTokenObtainPairView.as_view(), name='login'), 
