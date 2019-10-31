@@ -6,7 +6,7 @@ from django.db.models.signals import post_save
 from django.db import models
 
 class Allergy(models.Model):
-    name = models.CharField(max_length=150)
+    name = models.CharField(max_length=150, unique=True)
 
     class Meta:
         verbose_name_plural = 'allergies'

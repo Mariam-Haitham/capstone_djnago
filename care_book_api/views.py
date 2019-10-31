@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import Home, Child
+from .models import Home, Child, Allergy
 from .serializers import (MyTokenObtainPairSerializer, SignupSerializer, 
 UserInviteSerializer, AddChildSerializer)
 
@@ -37,6 +37,23 @@ class Signup(APIView):
 
 class UserInvite(CreateAPIView):
     serializer_class = UserInviteSerializer
+
+    def post(self, request, home_id):
+        serializer = UserInviteSerializer(data=request.data)
+
+        if serializer.is_valid():
+            home = Home.objects.get(id=home_id)
+            user = User.objects.get(username=serializer.data["email"])
+            if(not user):
+                user = User.objects.create(
+                    username =  serializer.data["email"],
+                    email = serializer.data["email"],
+                    password = ""
+                )
+                user.save()
+            home.caretakers.add(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
  
 
 class AddChild(CreateAPIView):

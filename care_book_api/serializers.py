@@ -25,24 +25,9 @@ class UserInviteSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["email"]
-       
-    def create(self, validated_data):
-        User.objects.create(
-            username = validated_data["email"],
-            email = validated_data["email"],
-            password = ""
-        )
-        return validated_data
 
 
 class AddChildSerializer(serializers.ModelSerializer):
-    print("I AM ALLERGY")
-    print(Allergy.objects.all())
-    allergies = serializers.SlugRelatedField(
-        many=True, 
-        queryset=Allergy.objects.all(),
-        slug_field='name',
-    )
     class Meta:
         model = Child
-        fields = ["name", "image", "dob", "medical_history","allergies"]
+        exclude = ["home"]
