@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 
 from .models import Home, Child, Allergy
 from .serializers import (MyTokenObtainPairSerializer, SignupSerializer, 
@@ -37,7 +38,7 @@ class Signup(APIView):
 
 class UserInvite(CreateAPIView):
     serializer_class = UserInviteSerializer
-
+    permission_class = [IsAuthenticated, IsParent]
     def post(self, request, home_id):
         serializer = UserInviteSerializer(data=request.data)
 
