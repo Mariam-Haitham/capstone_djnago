@@ -6,11 +6,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Home, Child, Allergy
-from .serializers import (MyTokenObtainPairSerializer, SignupSerializer, 
-UserInviteSerializer, AddChildSerializer)
+from .serializers import (MyTokenObtainPairSerializer, 
+SignupSerializer, UserInviteSerializer, AddChildSerializer)
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -38,14 +38,14 @@ class Signup(APIView):
 
 class UserInvite(CreateAPIView):
     serializer_class = UserInviteSerializer
-    permission_class = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, home_id):
         serializer = UserInviteSerializer(data=request.data)
 
         if serializer.is_valid():
             home = Home.objects.get(id=home_id)
-            req_user = User.objects.get(username=request.user)
-            home_parent = home.parents.get(username=req_user)
+            home_parent = home.parents.get(username=request.user.username)
             if(home_parent):
                 user = User.objects.filter(username=serializer.data["email"])
                 if(not user):
@@ -55,6 +55,8 @@ class UserInvite(CreateAPIView):
                         password = ""
                     )
                     user.save()
+                else: 
+                    user = user[0]
                 home.caretakers.add(user)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
