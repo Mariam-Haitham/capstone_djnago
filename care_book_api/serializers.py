@@ -31,3 +31,8 @@ class AddChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
         exclude = ["home"]
+
+class HomesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id"]

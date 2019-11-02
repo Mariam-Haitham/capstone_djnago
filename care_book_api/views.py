@@ -4,13 +4,13 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Home, Child, Allergy
 from .serializers import (MyTokenObtainPairSerializer, 
-SignupSerializer, UserInviteSerializer, AddChildSerializer)
+SignupSerializer, UserInviteSerializer, AddChildSerializer, HomesSerializer)
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -80,4 +80,13 @@ class AddChild(CreateAPIView):
             child.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-       
+
+class HomeList(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = HomesSerializer
+
+    def get_queryset(self):
+        return Home.objects.filter(parents = self.request.user)
+
+
+
