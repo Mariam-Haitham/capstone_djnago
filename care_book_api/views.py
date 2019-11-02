@@ -38,24 +38,27 @@ class Signup(APIView):
 
 class UserInvite(CreateAPIView):
     serializer_class = UserInviteSerializer
-    permission_class = [IsAuthenticated, IsParent]
+    permission_class = [IsAuthenticated]
     def post(self, request, home_id):
         serializer = UserInviteSerializer(data=request.data)
 
         if serializer.is_valid():
             home = Home.objects.get(id=home_id)
-            user = User.objects.get(username=serializer.data["email"])
-            if(not user):
-                user = User.objects.create(
-                    username =  serializer.data["email"],
-                    email = serializer.data["email"],
-                    password = ""
-                )
-                user.save()
-            home.caretakers.add(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            req_user = User.objects.get(username=request.user)
+            home_parent = home.parents.get(username=req_user)
+            if(home_parent):
+                user = User.objects.filter(username=serializer.data["email"])
+                if(not user):
+                    user = User.objects.create(
+                        username =  serializer.data["email"],
+                        email = serializer.data["email"],
+                        password = ""
+                    )
+                    user.save()
+                home.caretakers.add(user)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
- 
 
 class AddChild(CreateAPIView):
     serializer_class = AddChildSerializer
