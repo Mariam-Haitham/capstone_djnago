@@ -9,12 +9,12 @@ RetrieveAPIView, RetrieveUpdateAPIView, ListAPIView)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import Home, Child, Allergy
+from .models import Home, Child, Allergy, Post
 from .serializers import (MyTokenObtainPairSerializer, 
 HomeListSerializer, HomeDetailSerializer,
 HomeUpdateSerializer, AllergySerializer, 
 SignupSerializer, UserInviteSerializer, ChildSerializer,
-ChildDetailsSerializer, ChildListSerializer)
+ChildDetailsSerializer, ChildListSerializer, FeedSerializer)
 from .permissions import IsHomeParent, IsChildParent
 
 
@@ -157,3 +157,11 @@ class ChildList(ListAPIView):
         return Child.objects.filter(home=home)
 
     permission_classes = [IsAuthenticated, IsHomeParent, ]
+
+class Feed(ListAPIView):
+    serializer_class = FeedSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        home = Home.objects.get(id=self.kwargs['home_id'])
+        return Post.objects.filter(children__in=home.children.all())

@@ -25,6 +25,8 @@ urlpatterns = [
     path("login/", views.MyTokenObtainPairView.as_view(), name="login"), 
     path("invite/<int:home_id>/", views.UserInvite.as_view(), name="invite"),
 
+    path("feed/<int:home_id>/", views.Feed.as_view(), name = "feed")
+
 ]
 
 urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

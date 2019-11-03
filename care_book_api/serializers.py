@@ -3,7 +3,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from django.contrib.auth.models import User
 
-from .models import Child, Allergy, Home
+from .models import Child, Allergy, Home, Post
 
 import math
 from datetime import date
@@ -86,3 +86,9 @@ class ChildListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
         exclude = ["home"]
+
+
+class FeedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = "__all__"
