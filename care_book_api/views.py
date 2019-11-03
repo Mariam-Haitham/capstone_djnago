@@ -105,6 +105,13 @@ class AddHome(CreateAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class AddHomeName(RetrieveUpdateAPIView):
+    queryset = Home.objects.all()
+    serializer_class = HomeListSerializer 
+    lookup_field = 'id'
+    lookup_url_kwarg = 'home_id'
+    permission_classes = [IsAuthenticated, IsHomeParent, ]
+
 class AddChild(CreateAPIView):
     serializer_class = ChildSerializer
     permission_classes = [IsAuthenticated, IsHomeParent, ]

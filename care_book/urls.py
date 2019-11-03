@@ -14,6 +14,7 @@ urlpatterns = [
     path("homes/", views.HomeList.as_view(), name="home_list"),
     path("homes/<int:home_id>/", views.HomeView.as_view(), name="home"),
     path("add/home/", views.AddHome.as_view(), name = "add_home"),
+    path("addname/home/<int:home_id>/",views.AddHomeName.as_view(), name = "add_home_name"),
 
     path("add/child/<int:home_id>/", views.AddChild.as_view(), name="add_child"),
 	path("children/<int:home_id>/", views.ChildList.as_view(), name="children"),
