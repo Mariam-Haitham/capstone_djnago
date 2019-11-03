@@ -36,5 +36,7 @@ class Child(models.Model):
 
 
 class Post(models.Model):
+    children = models.ManyToManyField(Child, related_name='post')
     image = models.ImageField(null=True, blank=True)
     message = models.TextField(null=True, blank=True)
+
