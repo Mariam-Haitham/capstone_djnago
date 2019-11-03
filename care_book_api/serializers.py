@@ -3,7 +3,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from django.contrib.auth.models import User
 
-from .models import Child, Allergy
+from .models import Child, Allergy, Home
 
 import math
 from datetime import date
@@ -29,6 +29,32 @@ class UserInviteSerializer(serializers.ModelSerializer):
         model = User
         fields = ["email"]
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email"]
+
+
+class HomeListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id"]
+
+
+class HomeDetailSerializer(serializers.ModelSerializer):
+    parents = UserSerializer(many=True)
+    caretakers = UserSerializer(many=True)
+
+    class Meta:
+        model = Home
+        fields = ["parents", "caretakers"]
+
+
+class HomeUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Home
+        fields = ["parents", "caretakers"]
+
 
 class ChildSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,6 +66,7 @@ class AllergySerializer(serializers.ModelSerializer):
     class Meta:
         model = Allergy
         fields = ["name"]
+
 
 class ChildDetailsSerializer(serializers.ModelSerializer):
     allergies = AllergySerializer(many=True)
@@ -59,9 +86,3 @@ class ChildListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
         exclude = ["home"]
-
-
-class HomeListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["id"]
