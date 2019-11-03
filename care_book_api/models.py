@@ -19,6 +19,9 @@ class Home(models.Model):
     parents = models.ManyToManyField(User, related_name = 'parent')
     caretakers = models.ManyToManyField(User, related_name = 'caretaker')
     name = models.CharField(max_length = 150, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
     
 class Child(models.Model):
     name = models.CharField(max_length = 150)
