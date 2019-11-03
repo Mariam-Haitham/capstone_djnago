@@ -37,8 +37,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 class HomeListSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ["id"]
+        model = Home
+        fields = ["name"]
 
 
 class HomeDetailSerializer(serializers.ModelSerializer):
@@ -47,7 +47,7 @@ class HomeDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Home
-        fields = ["parents", "caretakers"]
+        fields = ["name","parents", "caretakers"]
 
 
 class HomeUpdateSerializer(serializers.ModelSerializer):

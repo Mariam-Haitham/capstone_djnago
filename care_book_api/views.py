@@ -91,6 +91,19 @@ class HomeView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class AddHome(CreateAPIView):
+    serializer_class = HomeListSerializer
+    permission_classes = [IsAuthenticated,]
+
+    def post(self, request):
+        serializer = HomeListSerializer(data=request.data)
+
+        if serializer.is_valid():
+            home = Home.objects.create(name = serializer.data['name'])
+            home.parents.add(request.user)
+            home.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class AddChild(CreateAPIView):
     serializer_class = ChildSerializer
