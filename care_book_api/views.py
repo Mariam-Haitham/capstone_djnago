@@ -17,6 +17,7 @@ SignupSerializer, UserInviteSerializer, ChildSerializer,
 ChildDetailsSerializer, ChildListSerializer)
 from .permissions import IsHomeParent, IsChildParent
 
+from django.core.mail import send_mail
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -62,6 +63,15 @@ class UserInvite(CreateAPIView):
             else: 
                 user = user[0]
             home.caretakers.add(user)
+            send_mail(
+               'Book Care Invitation',
+               ('''This is an automated email. You have been invited by 
+                {} {} to become a caretaker: '''
+                .format(request.user.first_name, request.user.last_name)) ,
+               'care_booker@hotmail.com',
+               [user.email],
+               fail_silently=False,
+               )
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

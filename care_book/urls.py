@@ -16,7 +16,7 @@ urlpatterns = [
 
     path("add/child/<int:home_id>/", views.AddChild.as_view(), name="add_child"),
 	path("children/<int:home_id>/", views.ChildList.as_view(), name="children"),
-    path("children/<int:child_id>/", views.ChildDetails.as_view(), name="child"),
+    path("child/<int:child_id>/", views.ChildDetails.as_view(), name="child"),
     path("child/<int:child_id>/update/", views.ChildUpdate.as_view(), name="update_child"),
 
     path("signup/", views.Signup.as_view(), name="signup"),
