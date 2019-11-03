@@ -5,6 +5,9 @@ from django.contrib.auth.models import User
 
 from .models import Child, Allergy
 
+import math
+from datetime import date
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -27,12 +30,38 @@ class UserInviteSerializer(serializers.ModelSerializer):
         fields = ["email"]
 
 
-class AddChildSerializer(serializers.ModelSerializer):
+class ChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
         exclude = ["home"]
 
-class HomesSerializer(serializers.ModelSerializer):
+
+class AllergySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Allergy
+        fields = ["name"]
+
+class ChildDetailsSerializer(serializers.ModelSerializer):
+    allergies = AllergySerializer(many=True)
+    age = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Child
+        fields = ["name", "image", "dob", "medical_history", "allergies", "age"]
+
+    def get_age(self, obj):
+        age = math.floor((date.today() - obj.dob).days / 365.2425)
+
+        return "%d %s"%(age, "years") if age > 1 else "%d %s"%(age, "year")
+
+
+class ChildListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Child
+        exclude = ["home"]
+
+
+class HomeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id"]
