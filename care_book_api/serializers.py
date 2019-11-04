@@ -23,43 +23,14 @@ class SignupSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
 
 
-class UserInviteSerializer(serializers.ModelSerializer):
+class UserInviteSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
-    class Meta:
-        model = User
-        fields = ["email"]
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "email"]
-
-
-class HomeListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Home
-        fields = ["id", "name"]
-
-
-class HomeDetailSerializer(serializers.ModelSerializer):
-    parents = UserSerializer(many=True)
-    caretakers = UserSerializer(many=True)
-
-    class Meta:
-        model = Home
-        fields = ["name","parents", "caretakers"]
-
-
-class HomeUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Home
-        fields = ["parents", "caretakers"]
-
-
-class ChildSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Child
-        exclude = ["home"]
+        fields = ["id", "first_name", "last_name", "email"]
 
 
 class AllergySerializer(serializers.ModelSerializer):
@@ -74,7 +45,7 @@ class ChildDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Child
-        fields = ["name", "image", "dob", "medical_history", "allergies", "age"]
+        fields = ["id", "name", "image", "dob", "medical_history", "allergies", "age"]
 
     def get_age(self, obj):
         age = math.floor((date.today() - obj.dob).days / 365.2425)
@@ -82,7 +53,29 @@ class ChildDetailsSerializer(serializers.ModelSerializer):
         return "%d %s"%(age, "years") if age > 1 else "%d %s"%(age, "year")
 
 
-class ChildListSerializer(serializers.ModelSerializer):
+class HomeViewSerializer(serializers.ModelSerializer):
+    parents = UserSerializer(many=True)
+    caretakers = UserSerializer(many=True)
+    children = ChildDetailsSerializer(many=True)
+
+    class Meta:
+        model = Home
+        fields = ["id", "name", "parents", "caretakers", "children"]
+
+
+class HomeAddSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Home
+        fields = ["name"]
+
+
+class HomeUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Home
+        fields = "__all__"
+
+
+class ChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
         exclude = ["home"]

@@ -1,15 +1,17 @@
 from django.contrib.auth.models import User
 
 from django.dispatch import receiver
-from django.db.models.signals import post_save
 
 from django.db import models
+from django.db.models.signals import post_save
+
 
 class Allergy(models.Model):
     name = models.CharField(max_length=150, unique=True)
 
     class Meta:
         verbose_name_plural = 'allergies'
+        ordering = ['name',]
 
     def __str__(self):
         return self.name
@@ -21,7 +23,8 @@ class Home(models.Model):
     name = models.CharField(max_length = 150, null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
+
     
 class Child(models.Model):
     name = models.CharField(max_length = 150)
@@ -42,4 +45,3 @@ class Post(models.Model):
     children = models.ManyToManyField(Child, related_name='post')
     image = models.ImageField(null=True, blank=True)
     message = models.TextField(null=True, blank=True)
-

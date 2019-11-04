@@ -4,20 +4,22 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.generics import (CreateAPIView, 
-RetrieveAPIView, RetrieveUpdateAPIView, ListAPIView)
+from rest_framework.generics import (
+    CreateAPIView, RetrieveAPIView, RetrieveUpdateAPIView, ListAPIView
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import Home, Child, Allergy, Post
-from .serializers import (MyTokenObtainPairSerializer, 
-HomeListSerializer, HomeDetailSerializer,
-HomeUpdateSerializer, AllergySerializer, 
-SignupSerializer, UserInviteSerializer, ChildSerializer,
-ChildDetailsSerializer, ChildListSerializer, FeedSerializer)
+from .serializers import (
+    MyTokenObtainPairSerializer, HomeAddSerializer, HomeViewSerializer,
+    HomeUpdateSerializer, AllergySerializer, SignupSerializer, 
+    UserInviteSerializer, ChildSerializer, FeedSerializer   
+)
 from .permissions import IsHomeParent, IsChildParent
 
-from django.core.mail import send_mail
+from .utils import send_email
+
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
@@ -50,61 +52,32 @@ class UserInvite(CreateAPIView):
         serializer = UserInviteSerializer(data=request.data)
 
         if serializer.is_valid():
-            home = Home.objects.get(id=home_id) 
-            user = User.objects.filter(username=serializer.data["email"])
-            if(not user):
-                user = User.objects.create(
-                    username =  serializer.data["email"],
-                    email = serializer.data["email"],
-                    password = ""
-                )
+            home = Home.objects.get(id=home_id)
+            user, created = User.objects.get_or_create(username=serializer.data["email"])
+            if created:
+                user.email = serializer.data['email']
+                user.password = ""
                 user.save()
-            else: 
-                user = user[0]
             home.caretakers.add(user)
-            send_mail(
-               'Book Care Invitation',
-               ('''This is an automated email. You have been invited to become a caretaker by {} {} '''
-                .format(request.user.first_name, request.user.last_name)) ,
-               'bookcare8982@gmail.com',
-               [user.email],
-               fail_silently=False,
-               )
+            send_email(request.user.first_name, request.user.last_name, 
+                [user.email], "care_taker")
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class HomeList(ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = HomeListSerializer
+class HomeView(ListAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = HomeViewSerializer
 
     def get_queryset(self):
         return Home.objects.filter(parents = self.request.user)
 
 
-class HomeView(APIView):
-    permission_classes = [IsAuthenticated, IsHomeParent, ]
-
-    def get(self, request, home_id):
-        home = Home.objects.get(id= home_id)
-        home_serializer = HomeDetailSerializer(home, context={"request": request})
-        return Response(home_serializer.data)
-
-    def put(self, request, home_id):
-        home = Home.objects.get(id= home_id)
-        serializer = HomeUpdateSerializer(data=request.data, instance=home)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 class AddHome(CreateAPIView):
-    serializer_class = HomeListSerializer
-    permission_classes = [IsAuthenticated,]
+    permission_classes = [IsAuthenticated, ]
 
     def post(self, request):
-        serializer = HomeListSerializer(data=request.data)
+        serializer = HomeAddSerializer(data=request.data)
 
         if serializer.is_valid():
             home = Home.objects.create(name = serializer.data['name'])
@@ -113,14 +86,27 @@ class AddHome(CreateAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class AddHomeName(RetrieveUpdateAPIView):
-    queryset = Home.objects.all()
-    serializer_class = HomeListSerializer 
-    lookup_field = 'id'
-    lookup_url_kwarg = 'home_id'
+
+class HomeDetails(APIView):
     permission_classes = [IsAuthenticated, IsHomeParent, ]
 
-class AddChild(CreateAPIView):
+    def get(self, request, home_id):
+        home = Home.objects.get(id=home_id)
+        feeds = Post.objects.filter(children__in=home.children.all()).distinct()
+        serializer = FeedSerializer(feeds, many=True)
+        return Response(serializer.data)
+       
+    def put(self, request, home_id):
+        home = Home.objects.get(id=home_id)
+        serializer = HomeUpdateSerializer(data=request.data, instance=home)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AddChild(APIView):
     serializer_class = ChildSerializer
     permission_classes = [IsAuthenticated, IsHomeParent, ]
 
@@ -141,35 +127,9 @@ class AddChild(CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ChildDetails(RetrieveAPIView):
-    queryset = Child.objects.all()
-    serializer_class = ChildDetailsSerializer
-    lookup_field = 'id'
-    lookup_url_kwarg = 'child_id'
-    permission_classes = [IsAuthenticated, IsChildParent, ]
-
-
 class ChildUpdate(RetrieveUpdateAPIView):
     queryset = Child.objects.all()
     serializer_class = ChildSerializer 
     lookup_field = 'id'
     lookup_url_kwarg = 'child_id'
     permission_classes = [IsAuthenticated, IsChildParent, ]
-
-
-class ChildList(ListAPIView):
-    serializer_class = ChildListSerializer
-
-    def get_queryset(self):
-        home = Home.objects.get(id=self.kwargs['home_id'])
-        return Child.objects.filter(home=home)
-
-    permission_classes = [IsAuthenticated, IsHomeParent, ]
-
-class Feed(ListAPIView):
-    serializer_class = FeedSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        home = Home.objects.get(id=self.kwargs['home_id'])
-        return Post.objects.filter(children__in=home.children.all())

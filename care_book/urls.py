@@ -5,27 +5,25 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 
-from care_book_api import views
+from care_book_api.views import (
+    HomeView, HomeDetails, AddHome, Signup, MyTokenObtainPairView,
+     UserInvite, AddChild, ChildUpdate)
 
 urlpatterns = [
 
     path("admin/", admin.site.urls),
 
-    path("homes/", views.HomeList.as_view(), name="home_list"),
-    path("homes/<int:home_id>/", views.HomeView.as_view(), name="home"),
-    path("add/home/", views.AddHome.as_view(), name = "add_home"),
-    path("addname/home/<int:home_id>/",views.AddHomeName.as_view(), name = "add_home_name"),
+    path("homes/", HomeView.as_view(), name="home_list"),
+    path("homes/<int:home_id>/", HomeDetails.as_view(), name="home_details"),
+    path("homes/add/", AddHome.as_view(), name = "home_add"),
+    
 
-    path("add/child/<int:home_id>/", views.AddChild.as_view(), name="add_child"),
-	path("children/<int:home_id>/", views.ChildList.as_view(), name="children"),
-    path("child/<int:child_id>/", views.ChildDetails.as_view(), name="child"),
-    path("child/<int:child_id>/update/", views.ChildUpdate.as_view(), name="update_child"),
+    path("child/add/<int:home_id>/", AddChild.as_view(), name="child_add"),
+    path("child/<int:child_id>/update/", ChildUpdate.as_view(), name="child_update"),
 
-    path("signup/", views.Signup.as_view(), name="signup"),
-    path("login/", views.MyTokenObtainPairView.as_view(), name="login"), 
-    path("invite/<int:home_id>/", views.UserInvite.as_view(), name="invite"),
-
-    path("feed/<int:home_id>/", views.Feed.as_view(), name = "feed")
+    path("signup/", Signup.as_view(), name="signup"),
+    path("login/", MyTokenObtainPairView.as_view(), name="login"), 
+    path("invite/<int:home_id>/", UserInvite.as_view(), name="invite"),
 
 ]
 

@@ -16,9 +16,8 @@ class IsHomeParent(BasePermission):
 class IsChildParent(BasePermission):
 	message = "You must be a parent of the child!"
 
-	def has_permission(self, request, view):
-		child = Child.objects.get(id=view.kwargs['child_id'])
-		if child.home.parents.filter(username=request.user): 
+	def has_object_permission(self, request, view, obj):
+		if obj.home.parents.filter(username=request.user): 
 			return True
 		else:
 			return False
