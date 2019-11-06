@@ -14,7 +14,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 
     path("homes/", HomeView.as_view(), name="home_list"),
-    path("homes/<int:home_id>/", HomeDetails.as_view(), name="home_details"),
+    path("homes/<int:home_id>/", HomeDetails.as_view(), name="home_detial"),
     path("homes/add/", AddHome.as_view(), name = "home_add"),
     
 
@@ -23,7 +23,7 @@ urlpatterns = [
 
     path("signup/", Signup.as_view(), name="signup"),
     path("login/", MyTokenObtainPairView.as_view(), name="login"), 
-    path("invite/<int:home_id>/<str:type>/", UserInvite.as_view(), name="invite"),
+    path("invite/<int:home_id>/", UserInvite.as_view(), name="invite"),
 
 ]
 

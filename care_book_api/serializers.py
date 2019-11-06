@@ -63,16 +63,10 @@ class HomeViewSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "parents", "caretakers", "children"]
 
 
-class HomeAddSerializer(serializers.ModelSerializer):
+class HomeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Home
         fields = ["name"]
-
-
-class HomeUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Home
-        fields = "__all__"
 
 
 class ChildSerializer(serializers.ModelSerializer):

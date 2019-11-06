@@ -12,9 +12,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import Home, Child, Allergy, Post
 from .serializers import (
-    MyTokenObtainPairSerializer, HomeAddSerializer, HomeViewSerializer,
-    HomeUpdateSerializer, AllergySerializer, SignupSerializer, 
-    UserInviteSerializer, ChildSerializer, FeedSerializer   
+    MyTokenObtainPairSerializer, HomeSerializer, HomeViewSerializer,
+    AllergySerializer, SignupSerializer, UserInviteSerializer, 
+    ChildSerializer, FeedSerializer   
 )
 from .permissions import IsHomeParent, IsChildParent
 
@@ -80,7 +80,7 @@ class AddHome(CreateAPIView):
     permission_classes = [IsAuthenticated, ]
 
     def post(self, request):
-        serializer = HomeAddSerializer(data=request.data)
+        serializer = HomeSerializer(data=request.data)
 
         if serializer.is_valid():
             home = Home.objects.create(name = serializer.data['name'])
@@ -98,10 +98,23 @@ class HomeDetails(APIView):
         feeds = Post.objects.filter(children__in=home.children.all()).distinct()
         serializer = FeedSerializer(feeds, many=True, context={"request":request})
         return Response(serializer.data)
+
+    def post(self, request, home_id):
+        serializer = FeedSerializer(data=request.data)
+
+        if serializer.is_valid():
+            feed = Post.objects.create(
+                message=serializer.data['message'],
+                image=serializer.data['image'])
+            feed.children.set(serializer.data['children'])
+            feed.save();
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
        
     def put(self, request, home_id):
         home = Home.objects.get(id=home_id)
-        serializer = HomeUpdateSerializer(data=request.data, instance=home)
+        serializer = HomeSerializer(data=request.data, instance=home)
 
         if serializer.is_valid():
             serializer.save()
