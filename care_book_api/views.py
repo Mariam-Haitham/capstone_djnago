@@ -48,7 +48,7 @@ class UserInvite(CreateAPIView):
     serializer_class = UserInviteSerializer
     permission_classes = [IsAuthenticated, IsHomeParent, ]
 
-    def post(self, request, home_id):
+    def post(self, request, home_id, type):
         serializer = UserInviteSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -58,9 +58,12 @@ class UserInvite(CreateAPIView):
                 user.email = serializer.data['email']
                 user.password = ""
                 user.save()
-            home.caretakers.add(user)
+            if type == "parent":
+                home.parents.add(user)
+            else:
+                home.caretakers.add(user)
             send_email(request.user.first_name, request.user.last_name, 
-                [user.email], "care_taker")
+                [user.email], type)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -93,7 +96,7 @@ class HomeDetails(APIView):
     def get(self, request, home_id):
         home = Home.objects.get(id=home_id)
         feeds = Post.objects.filter(children__in=home.children.all()).distinct()
-        serializer = FeedSerializer(feeds, many=True)
+        serializer = FeedSerializer(feeds, many=True, context={"request":request})
         return Response(serializer.data)
        
     def put(self, request, home_id):
