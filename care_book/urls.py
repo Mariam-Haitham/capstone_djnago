@@ -23,7 +23,7 @@ urlpatterns = [
 
     path("signup/", Signup.as_view(), name="signup"),
     path("login/", MyTokenObtainPairView.as_view(), name="login"), 
-    path("invite/<int:home_id>/", UserInvite.as_view(), name="invite"),
+    path("invite/<int:home_id>/<str:type>/", UserInvite.as_view(), name="invite"),
 
 ]
 
