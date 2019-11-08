@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import render
 from django.contrib.auth.models import User
 
@@ -73,7 +74,9 @@ class HomeView(ListAPIView):
     serializer_class = HomeViewSerializer
 
     def get_queryset(self):
-        return Home.objects.filter(parents = self.request.user)
+        return Home.objects.filter(
+            Q(parents = self.request.user) |
+            Q(caretakers = self.request.user)).distinct()
 
 
 class AddHome(CreateAPIView):
