@@ -7,7 +7,7 @@ from django.conf.urls.static import static
 
 from care_book_api.views import (
     HomeView, HomeDetails, AddHome, Signup, MyTokenObtainPairView,
-     UserInvite, AddChild, ChildUpdate)
+     UserInvite, AddChild, ChildUpdate, Allergy)
 
 urlpatterns = [
 
@@ -17,9 +17,10 @@ urlpatterns = [
     path("homes/<int:home_id>/", HomeDetails.as_view(), name="home_detial"),
     path("homes/add/", AddHome.as_view(), name = "home_add"),
     
-
     path("child/add/<int:home_id>/", AddChild.as_view(), name="child_add"),
     path("child/<int:child_id>/update/", ChildUpdate.as_view(), name="child_update"),
+
+    path("allergies/", Allergy.as_view(), name="allergies-list"),
 
     path("signup/", Signup.as_view(), name="signup"),
     path("login/", MyTokenObtainPairView.as_view(), name="login"), 

@@ -152,3 +152,8 @@ class ChildUpdate(RetrieveUpdateAPIView):
     lookup_field = 'id'
     lookup_url_kwarg = 'child_id'
     permission_classes = [IsAuthenticated, IsChildParent, ]
+
+
+class Allergy(ListAPIView):
+    queryset = Allergy.objects.all()
+    serializer_class = AllergySerializer 

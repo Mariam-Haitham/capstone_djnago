@@ -36,7 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
 class AllergySerializer(serializers.ModelSerializer):
     class Meta:
         model = Allergy
-        fields = ["name"]
+        fields = ["id", "name"]
 
 
 class ChildDetailsSerializer(serializers.ModelSerializer):
