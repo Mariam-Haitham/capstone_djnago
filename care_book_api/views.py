@@ -103,14 +103,21 @@ class HomeDetails(APIView):
         return Response(serializer.data)
 
     def post(self, request, home_id):
+        request.data['image'] = decode_base64(request.data['image'])
+        temp = Post.objects.create(
+            message="",
+            image=request.data['image'])
+        request.data['image'] = temp.image
+        temp.delete()
+
         serializer = FeedSerializer(data=request.data)
 
         if serializer.is_valid():
             feed = Post.objects.create(
                 message=serializer.data['message'],
-                image=decode_base64(serializer.data['image']))
+                image=serializer.data['image'])
             feed.children.set(serializer.data['children'])
-            feed.save();
+            feed.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
