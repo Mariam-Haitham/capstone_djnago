@@ -19,7 +19,7 @@ from .serializers import (
 )
 from .permissions import IsHomeParent, IsChildParent
 
-from .utils import send_email
+from .utils import send_email, decode_base64
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -108,7 +108,7 @@ class HomeDetails(APIView):
         if serializer.is_valid():
             feed = Post.objects.create(
                 message=serializer.data['message'],
-                image=serializer.data['image'])
+                image=decode_base64(serializer.data['image']))
             feed.children.set(serializer.data['children'])
             feed.save();
             return Response(serializer.data, status=status.HTTP_200_OK)
