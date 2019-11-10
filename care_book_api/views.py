@@ -142,18 +142,30 @@ class AddChild(APIView):
     permission_classes = [IsAuthenticated, IsHomeParent, ]
 
     def post(self, request, home_id):
+        request.data['image'] = decode_base64(request.data['image'])
+        
+        tempHome = Home.objects.get(id=1)
+        temp = Child.objects.create(
+            name="",
+            image=request.data['image'],
+            dob="2019-11-10",
+            medical_history="",
+            home=tempHome)
+        request.data['image'] = temp.image
+
         serializer = ChildSerializer(data=request.data)
 
         if serializer.is_valid():
             home = Home.objects.get(id=home_id)
             child = Child.objects.create(home = home, 
                 name = serializer.data['name'], 
-                image = serializer.data['image'], 
+                image = temp.image, 
                 dob = serializer.data['dob'],
                 medical_history = serializer.data['medical_history'], 
             )
             child.allergies.set(serializer.data['allergies'])
             child.save()
+            temp.delete()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
