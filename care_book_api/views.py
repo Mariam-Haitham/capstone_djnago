@@ -6,7 +6,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import (
-    CreateAPIView, RetrieveAPIView, RetrieveUpdateAPIView, ListAPIView
+    CreateAPIView, RetrieveAPIView, RetrieveUpdateAPIView,
+    ListAPIView
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -17,7 +18,8 @@ from .serializers import (
     AllergySerializer, SignupSerializer, UserInviteSerializer, 
     ChildSerializer, FeedSerializer   
 )
-from .permissions import IsHomeParent, IsChildParent
+from .permissions import (
+    IsHomeParent, IsChildParent, CanPostFeed)
 
 from .utils import send_email, decode_base64
 
@@ -94,7 +96,7 @@ class AddHome(CreateAPIView):
 
 
 class HomeDetails(APIView):
-    permission_classes = [IsAuthenticated, IsHomeParent, ]
+    permission_classes = [IsAuthenticated, CanPostFeed]
 
     def get(self, request, home_id):
         home = Home.objects.get(id=home_id)
