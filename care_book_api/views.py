@@ -100,31 +100,21 @@ class HomeDetails(APIView):
 
     def get(self, request, home_id):
         home = Home.objects.get(id=home_id)
-        feeds = Post.objects.filter(children__in=home.children.all()).distinct()
+        feeds = Post.objects.filter(children__in=home.children.all()).distinct().order_by('-id')
         serializer = FeedSerializer(feeds, many=True, context={"request":request})
         return Response(serializer.data)
 
     def post(self, request, home_id):
         request.data['image'] = decode_base64(request.data['image'])
-        
-        temp = Post.objects.create(
-            message="",
-            image=request.data['image'])
-        
-        request.data['image'] = temp.image
-        
-
         serializer = FeedSerializer(data=request.data)
 
-        if serializer.is_valid(): 
-            print(temp.image)
+        if serializer.is_valid():    
             feed = Post.objects.create(
                 message=serializer.data['message'],
-                image=temp.image)
-
+                image=request.data['image'])
             feed.children.set(serializer.data['children'])
             feed.save()
-            temp.delete()
+            
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -145,29 +135,18 @@ class AddChild(APIView):
 
     def post(self, request, home_id):
         request.data['image'] = decode_base64(request.data['image'])
-        
-        tempHome = Home.objects.get(id=1)
-        temp = Child.objects.create(
-            name="",
-            image=request.data['image'],
-            dob="2019-11-10",
-            medical_history="",
-            home=tempHome)
-        request.data['image'] = temp.image
-
         serializer = ChildSerializer(data=request.data)
-
         if serializer.is_valid():
+            
             home = Home.objects.get(id=home_id)
             child = Child.objects.create(home = home, 
                 name = serializer.data['name'], 
-                image = temp.image, 
+                image = request.data['image'], 
                 dob = serializer.data['dob'],
                 medical_history = serializer.data['medical_history'], 
             )
             child.allergies.set(serializer.data['allergies'])
             child.save()
-            temp.delete()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
