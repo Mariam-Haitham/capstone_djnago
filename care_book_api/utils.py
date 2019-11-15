@@ -6,8 +6,8 @@ from django.core.files.base import ContentFile
 
 def send_email(first_name, last_name, recipient, role):
     send_mail(
-       'Book Care Invitation',
-       ('This is an automated email.\n You have been invited to become a {} by {} {}, please sign up to join.'
+       'Peek-a-Baby App Invitation',
+       ('This is an automated email. Please do not reply.\nYou have been invited to become a {} by {} {} to be part of their household.\n Please download the app and sign up with your email to join.'
         .format(role, first_name, last_name)) ,
        'bookcare8982@gmail.com',
        recipient,
